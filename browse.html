@@ -1,31 +1,31 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Netflix Browse</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h1 class="logo">NETFLIX</h1>
+    <header class="browse-header">
+        <h1 class="logo">NETFLIX</h1>
+        <button onclick="logout()">Logout</button>
+    </header>
+
+    <input
+        type="text"
+        id="search"
+        placeholder="Search movies..."
+        onkeyup="searchMovies()"
+    >
 
     <h2>Trending Movies</h2>
 
-    <div class="movies">
-        <div class="movie-card">Money Heist</div>
-        <div class="movie-card">Stranger Things</div>
-        <div class="movie-card">Wednesday</div>
-        <div class="movie-card">Dark</div>
-        <div class="movie-card">Squid Game</div>
+    <div class="movies" id="movies">
+        <div class="movie-card">Loading movies...</div>
     </div>
 
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
-<input
-    type="text"
-    id="search"
-    placeholder="Search movies..."
-    onkeyup="searchMovies()"
->
-<button onclick="logout()">Logout</button>

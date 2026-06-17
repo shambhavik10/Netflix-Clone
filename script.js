@@ -3,55 +3,96 @@ const API_BASE_URL = "https://netflix-clone-u1m5.onrender.com";
 console.log("Script Loaded");
 
 async function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
 
-  const response = await fetch(
-    `${API_BASE_URL}/login?email=${email}&password=${password}`,
-    { method: "POST" }
-  );
+  if (!emailInput || !passwordInput) {
+    return;
+  }
 
-  const data = await response.json();
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
 
-  if (data.message === "Login Successful") {
-    window.location.href = "browse.html";
-  } else {
-    alert("Invalid Email or Password");
+  if (!email || !password) {
+    alert("Please enter both email and password.");
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+      { method: "POST" }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Login request failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (data.message === "Login Successful") {
+      window.location.href = "browse.html";
+    } else {
+      alert("Invalid email or password.");
+    }
+  } catch (error) {
+    console.error("Login failed:", error);
+    alert("Unable to log in right now. Please try again later.");
   }
 }
 
 async function loadMovies() {
   const moviesContainer = document.getElementById("movies");
 
-  if (!moviesContainer) return;
+  if (!moviesContainer) {
+    return;
+  }
 
-  const response = await fetch(`${API_BASE_URL}/movies`);
-  const movies = await response.json();
+  try {
+    const response = await fetch(`${API_BASE_URL}/movies`);
 
-  let html = "";
+    if (!response.ok) {
+      throw new Error(`Movies request failed with status ${response.status}`);
+    }
 
-  movies.forEach(movie => {
-    const poster = movie.poster_url || "https://picsum.photos/200/300";
+    const movies = await response.json();
 
-    html += `
-      <div class="movie-card">
-        <img src="${poster}" alt="${movie.title}">
-        <h3>${movie.title}</h3>
-        <p>${movie.catagory || ""}</p>
-      </div>
-    `;
-  });
+    if (!Array.isArray(movies)) {
+      throw new Error("Movies response was not a list.");
+    }
 
-  moviesContainer.innerHTML = html;
+    moviesContainer.innerHTML = movies
+      .map((movie) => {
+        const title = movie.title || "Untitled";
+        const poster = movie.poster_url || "https://picsum.photos/200/300";
+        const category = movie.category || movie.catagory || "";
+
+        return `
+          <div class="movie-card">
+            <img src="${poster}" alt="${title}">
+            <h3>${title}</h3>
+            <p>${category}</p>
+          </div>
+        `;
+      })
+      .join("");
+  } catch (error) {
+    console.error("Could not load movies:", error);
+    alert("Unable to load movies right now. Please try again later.");
+  }
 }
 
-loadMovies();
-
 function searchMovies() {
-  const search = document.getElementById("search").value.toLowerCase();
+  const searchInput = document.getElementById("search");
+
+  if (!searchInput) {
+    return;
+  }
+
+  const search = searchInput.value.toLowerCase();
   const cards = document.querySelectorAll(".movie-card");
 
-  cards.forEach(card => {
+  cards.forEach((card) => {
     const movieName = card.innerText.toLowerCase();
     card.style.display = movieName.includes(search) ? "block" : "none";
   });
@@ -60,3 +101,5 @@ function searchMovies() {
 function logout() {
   window.location.href = "index.html";
 }
+
+loadMovies();
